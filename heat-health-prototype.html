@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Heat Health Intelligence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#fbf3ea;--card:#fff;--ink:#2a1a12;--mut:#8a6a56;--line:#ecd9c6;--acc:#c1440e;--acc2:#8a2c10;
+--l:#7fae6a;--m:#f0b429;--h:#ef7f1a;--v:#d94f2b;--x:#8f1d1d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1410;--card:#241a14;--ink:#f3e6da;--mut:#c2a48e;--line:#3a2b21}}
+:root[data-theme="dark"]{--bg:#1c1410;--card:#241a14;--ink:#f3e6da;--mut:#c2a48e;--line:#3a2b21}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Source Sans 3",system-ui,sans-serif}
+.w{max-width:1180px;margin:0 auto;padding:0 18px}
+header{background:linear-gradient(90deg,var(--acc2),var(--acc));color:#fff}
+header .w{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between;align-items:center;padding:14px 18px}
+h1{font-size:22px;margin:0;display:flex;align-items:center;gap:8px;}header p{margin:2px 0 0;color:#f6dcc9;font-size:13px}
+.badge{background:rgba(0,0,0,.2);padding:2px 10px;font-size:12px;font-weight:700;border-radius:2px}
+select{font:inherit;padding:7px 10px;border:1px solid rgba(255,255,255,.5);background:#fff;color:var(--ink);border-radius:2px}
+nav{display:flex;overflow-x:auto;gap:2px;border-bottom:1px solid var(--line);background:var(--card)}nav .w{display:flex;gap:2px}
+nav button{border:0;border-bottom:3px solid transparent;background:none;padding:10px 12px;white-space:nowrap;font-weight:700;color:var(--mut);font:inherit}
+nav button[aria-current=page]{color:var(--acc);border-color:var(--acc)}
+button{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);padding:6px 12px;cursor:pointer;border-radius:2px}
+button:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h2{font-size:20px;margin:22px 0 4px; display:flex; align-items:center; gap:8px;}
+h3{font-size:17px;margin:0 0 6px}
+h4{font-size:13px;margin:12px 0 3px;color:var(--mut);text-transform:uppercase;letter-spacing:.03em;display:flex;align-items:center;gap:6px;}
+.sub,.mut{color:var(--mut);font-size:14px}.sub{margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);padding:14px;border-radius:3px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.two{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+@media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.cols,.two{grid-template-columns:1fr}}
+.m b{display:block;font-size:32px;line-height:1.1;color:var(--acc2)}.m small{color:var(--mut); display:flex; align-items:center; gap:6px;}.na{font-size:18px!important;color:var(--mut)}
+.grid8{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}@media(max-width:600px){.grid8{grid-template-columns:1fr 1fr}}
+.tile{min-height:78px;text-align:left;border:3px solid var(--card);display:flex;flex-direction:column;justify-content:space-between;border-radius:3px}
+.tile b{font-size:15px}.tile.sel{border-color:var(--ink)}
+.chip{display:inline-block;padding:2px 10px;font-weight:700;border-radius:2px}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:13px}.leg i{display:inline-block;width:12px;height:12px;margin-right:4px;border-radius:2px}
+.tag{font-size:11px;border:1px solid var(--line);padding:0 5px;color:var(--mut);margin-left:6px;white-space:nowrap;border-radius:2px}
+table{width:100%;border-collapse:collapse}td,th{padding:5px 0;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}td:last-child,th:last-child{text-align:right}
+.note{border-left:4px solid var(--acc2);background:var(--card);padding:12px;margin:10px 0;font-size:14px;display:flex;gap:10px;align-items:flex-start;}
+.act{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.act:last-child{border-bottom:none;}
+details{margin-top:8px}summary{cursor:pointer;font-weight:600;color:var(--acc)}
+footer{padding:16px 0 30px;font-size:13px;color:var(--mut)}footer button{border:0;background:none;color:var(--acc);padding:0;text-decoration:underline;border-radius:0}
+.locked{opacity:.55}
+.flow{text-align:center;margin:10px 0;color:var(--mut);font-weight:700;font-size:14px}
+.big{text-align:center;padding:22px}.big .num{font-size:46px;font-weight:800;color:var(--acc2);line-height:1.1}
+.catcard h3{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:15px}
+.ic{vertical-align:-4px;display:inline-block;flex:none}
+button[aria-pressed=true]{background:var(--acc);color:#fff;border-color:var(--acc)}
+.icorow{display:flex;gap:10px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--line)}
+.icorow:last-child{border-bottom:0}.icorow .ic{margin-top:2px;color:var(--acc2)}
+select.inline{margin-left:0}
+
+/* Lucide Icons & SVG map */
+.lucide { width: 18px; height: 18px; }
+.lucide-lg { width: 24px; height: 24px; }
+.lucide-sm { width: 14px; height: 14px; }
+.map-label { font-size: 16px; font-weight: 800; pointer-events: none; fill: #fff; text-anchor: middle; text-shadow: 0px 1px 3px rgba(0,0,0,0.7); }
+
+.isometric-wrapper {
+  perspective: 1000px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.svg-map {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  transform: rotateX(55deg) rotateZ(-30deg) scale(1.1);
+  transform-style: preserve-3d;
+  filter: 
+    drop-shadow(-1px 1px 0px #702611)
+    drop-shadow(-2px 2px 0px #702611)
+    drop-shadow(-3px 3px 0px #702611)
+    drop-shadow(-4px 4px 0px #702611)
+    drop-shadow(-5px 5px 0px #702611)
+    drop-shadow(-6px 6px 0px #702611)
+    drop-shadow(-7px 7px 0px #702611)
+    drop-shadow(-8px 8px 0px #702611)
+    drop-shadow(-15px 25px 15px rgba(0,0,0,0.4));
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+.svg-map:hover {
+  transform: rotateX(50deg) rotateZ(-25deg) scale(1.15);
+  filter: 
+    drop-shadow(-1px 1px 0px #702611)
+    drop-shadow(-2px 2px 0px #702611)
+    drop-shadow(-3px 3px 0px #702611)
+    drop-shadow(-4px 4px 0px #702611)
+    drop-shadow(-5px 5px 0px #702611)
+    drop-shadow(-6px 6px 0px #702611)
+    drop-shadow(-7px 7px 0px #702611)
+    drop-shadow(-8px 8px 0px #702611)
+    drop-shadow(-9px 9px 0px #702611)
+    drop-shadow(-10px 10px 0px #702611)
+    drop-shadow(-12px 12px 0px #702611)
+    drop-shadow(-20px 35px 20px rgba(0,0,0,0.3));
+}
+
+.ward-g { transition: transform 0.3s ease; }
+.ward-g:hover { transform: translate(3px, -3px); }
+
+.ward-path { stroke: rgba(255,255,255,0.7); stroke-width: 1.5; cursor: pointer; transition: all 0.2s ease; }
+.ward-path:hover { filter: brightness(1.2); stroke: #fff; stroke-width: 2.5; }
+.ward-path.sel { stroke: #fff; stroke-width: 3.5; filter: brightness(1.1); }
+.custom-checkbox { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer; font-size: 15px; user-select: none; }
+.custom-checkbox input { width: 18px; height: 18px; accent-color: var(--acc); cursor: pointer; }
+</style></head><body>
+<header><div class="w"><div><h1><i data-lucide="sun"></i> Heat Health Intelligence</h1><p>From what the weather will be → to what it may do to human health.</p></div>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="badge">DEMO · SYNTHETIC MODEL</span>
+<select id="loc" aria-label="Select location"></select></div></div></header>
+<nav><div class="w" id="nav"></div></nav>
+<div class="w"><div id="view"></div><footer id="foot"></footer></div>
+<script>
+/* ============ CONFIG (demonstration assumptions only) ============ */
+const CFG={wb:[26,35],warnWBGT:29,nightPoor:30,nightLim:27,wT:.72,wN:.28,
+ ref:{k:[5,14],e:[5,20],o:[3,30],d:[.5,6]},
+ bands:[[.25,'Low','--l','#111'],[.45,'Moderate','--m','#111'],[.6,'High','--h','#111'],[.75,'Very high','--v','#fff'],[1.01,'Extreme','--x','#fff']]};
+
+const SVG_MAP = `
+<svg viewBox="0 0 400 500" class="svg-map" style="width: 100%; max-width: 360px; height: auto; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+  <g class="ward-g" onclick="selWard(1)"> <!-- Muthialpet -->
+    <path d="M150,50 L250,50 L270,120 L130,120 Z" class="ward-path" id="wp-1" />
+    <text x="200" y="90" class="map-label">Muthialpet</text>
+  </g>
+  <g class="ward-g" onclick="selWard(2)"> <!-- Solainagar -->
+    <path d="M270,120 L300,190 L180,210 L130,120 Z" class="ward-path" id="wp-2" />
+    <text x="220" y="170" class="map-label">Solainagar</text>
+  </g>
+  <g class="ward-g" onclick="selWard(3)"> <!-- Vaithikuppam -->
+    <path d="M300,190 L320,260 L210,270 L180,210 Z" class="ward-path" id="wp-3" />
+    <text x="255" y="235" class="map-label">Vaithikuppam</text>
+  </g>
+  <g class="ward-g" onclick="selWard(6)"> <!-- Kurusukuppam -->
+    <path d="M320,260 L330,340 L230,340 L210,270 Z" class="ward-path" id="wp-6" />
+    <text x="280" y="310" class="map-label">Kurusukuppam</text>
+  </g>
+  <g class="ward-g" onclick="selWard(0)"> <!-- Debarayanpeth -->
+    <path d="M130,120 L180,210 L90,230 L50,140 Z" class="ward-path" id="wp-0" />
+    <text x="115" y="180" class="map-label">Debarayanpeth</text>
+  </g>
+  <g class="ward-g" onclick="selWard(4)"> <!-- V.O.C. Nagar -->
+    <path d="M180,210 L210,270 L110,310 L90,230 Z" class="ward-path" id="wp-4" />
+    <text x="150" y="265" class="map-label">V.O.C. Nagar</text>
+  </g>
+  <g class="ward-g" onclick="selWard(5)"> <!-- Thiruvalluvar Nagar -->
+    <path d="M210,270 L230,340 L130,380 L110,310 Z" class="ward-path" id="wp-5" />
+    <text x="175" y="330" class="map-label">Thiruvalluvar</text>
+  </g>
+  <g class="ward-g" onclick="selWard(7)"> <!-- Dharmapuri -->
+    <path d="M230,340 L240,430 L120,440 L130,380 Z" class="ward-path" id="wp-7" />
+    <text x="180" y="400" class="map-label">Dharmapuri</text>
+  </g>
+</svg>`;
+
+/* ============ LOCATIONS ============ */
+const LOCATIONS=[
+ {id:'pdy',name:'Puducherry (UT)',ready:true,weather:{t:36,rh:72,tn:29},
+  wards:[
+   ['Debarayanpeth',3771,10,15,3.5,22,.55,.45],
+   ['Muthialpet (West)',4169,11,13,4,18,.5,.5],
+   ['Solainagar',10506,9,11,2.8,12,.75,.3],
+   ['Vaithikuppam',7664,8,9,3,8,.85,.2],
+   ['V.O.C. Nagar',6145,12,17,4.5,26,.4,.6],
+   ['Thiruvalluvar Nagar',5068,13,10,3.8,20,.45,.55],
+   ['Kurusukuppam',6623,10,19,5,28,.35,.65],
+   ['Dharmapuri',8666,7,8,2.5,6,.9,.15]
+  ]},
+ {id:'del',name:'Delhi (coming soon)',ready:false},
+ {id:'che',name:'Chennai (coming soon)',ready:false},
+ {id:'mum',name:'Mumbai (coming soon)',ready:false}];
+/* ============ ENGINE 1 – thermal (real, documented methods) ============ */
+function heatIndexC(tc,rh){const T=tc*9/5+32;let hi=.5*(T+61+(T-68)*1.2+rh*.094);
+ if((hi+T)/2<80)return{v:(hi-32)*5/9,ok:tc>=26.7};
+ hi=-42.379+2.04901523*T+10.14333127*rh-.22475541*T*rh-.00683783*T*T-.05481717*rh*rh+.00122874*T*T*rh+.00085282*T*rh*rh-.00000199*T*T*rh*rh;
+ if(rh<13&&T>=80&&T<=112)hi-=(13-rh)/4*Math.sqrt((17-Math.abs(T-95))/17);
+ if(rh>85&&T>=80&&T<=87)hi+=(rh-85)/10*(87-T)/5;return{v:(hi-32)*5/9,ok:true}}
+function wetBulb(T,R){return T*Math.atan(.151977*Math.sqrt(R+8.313659))+Math.atan(T+R)-Math.atan(R-1.676331)+.00391838*Math.pow(R,1.5)*Math.atan(.023101*R)-4.686035}
+function engine1(w){const hi=heatIndexC(w.t,w.rh),wbgt=.7*wetBulb(w.t,w.rh)+.3*w.t;
+ const night=w.tn>=CFG.nightPoor?'POOR':w.tn>=CFG.nightLim?'LIMITED':'GOOD';
+ return{t:w.t,rh:w.rh,tn:w.tn,hi:hi.v,hiOk:hi.ok,wbgt,night}}
+/* ============ ENGINE 2 – ward human profile ============ */
+const cl=x=>Math.max(0,Math.min(1,x)),nz=(v,[a,b])=>cl((v-a)/(b-a)),mean=a=>a.reduce((s,x)=>s+x,0)/a.length;
+function engine2(w){const nk=nz(w.k,CFG.ref.k),ne=nz(w.e,CFG.ref.e),no=nz(w.o,CFG.ref.o),nd=nz(w.d,CFG.ref.d);
+ const sens=mean([nk,ne,nd]),expo=mean([no,w.surf]),cap=mean([w.cool,1-w.house]);
+ return{nk,ne,no,nd,sens,expo,cap,human:.35*sens+.35*expo+.3*(1-cap),
+  workers:Math.round(w.pop*w.o/100),elderly:Math.round(w.pop*w.e/100),kids:Math.round(w.pop*w.k/100),disabled:Math.round(w.pop*w.d/100)}}
+/* ============ ENGINE 3 – health-impact demo index ============ */
+const CATS=['Outdoor workers','Elderly','Children','Disabled / low-mobility'];
+const ICON={'Outdoor workers':'<i data-lucide="hard-hat"></i>','Elderly':'<i data-lucide="users"></i>','Children':'<i data-lucide="baby"></i>','Disabled / low-mobility':'<i data-lucide="wheelchair"></i>'};
+function engine3(e,ward,h){const te=CFG.wT*nz(e.wbgt,CFG.wb)+CFG.wN*(e.night=='POOR'?1:e.night=='LIMITED'?.5:0);
+ const cat={'Outdoor workers':te*(.3+.7*h.no),'Elderly':te*(.3+.7*mean([h.ne,1-ward.cool])),'Children':te*(.3+.7*h.nk),'Disabled / low-mobility':te*(.3+.7*mean([h.nd,1-ward.cool]))};
+ const all=te*(.4+.6*h.human);return{te,all,'All':all,...cat}}
+const band=v=>CFG.bands.find(b=>v<b[0]);
+const chip=v=>{const b=band(v);return `<span class="chip" style="background:var(${b[2]});color:${b[3]}">${b[1]}</span>`};
+const chipband=hb=>`<span class="chip" style="background:var(${hb[1]});color:#111">${hb[0]}</span>`;
+const hiCat=hi=>hi<32?['Caution','--m']:hi<39?['Extreme caution','--h']:hi<51?['Danger','--v']:['Extreme danger','--x'];
+const BIO={'Outdoor workers':"Physical work adds the body's own heat on top of the weather, so outdoor workers overheat faster than someone resting in the shade.",
+ 'Elderly':'Older bodies sweat less efficiently, and the heart has less reserve to pump extra blood to the skin to release heat.',
+ 'Children':'Children have more skin area for their body size, so they gain and lose heat faster, and may not tell an adult they are struggling.',
+ 'Disabled / low-mobility':'Reduced ability to move to a cooler place, or to communicate discomfort, can turn a manageable situation dangerous.'};
+const tag=t=>`<span class="tag">${t}</span>`,tbl=r=>`<table>${r.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}${x[2]?tag(x[2]):''}</td></tr>`).join('')}</table>`;
+/* ============ STATE ============ */
+let locId='pdy',ward=0,tabName='Overview';
+let activeCharts = [];
+function loc(){return LOCATIONS.find(l=>l.id==locId)}
+function wardObj(i){const l=loc(),a=l.wards[i];return{name:a[0],pop:a[1],k:a[2],e:a[3],d:a[4],o:a[5],cool:a[6],house:1-a[6],surf:a[7]}}
+function data(){const l=loc();if(!l.ready)return null;const e=engine1(l.weather),w=wardObj(ward),h=engine2(w),r=engine3(e,w,h);return{l,e,w,h,r}}
+/* ============ BIOLOGICAL REASONS + PRECAUTIONS ============ */
+function why(e,w,h,r){const a=[];
+ if(e.rh>=60)a.push(`Humidity is ${e.rh}%, which limits sweat evaporation — the body's main way of cooling itself`);
+ if(e.wbgt>=CFG.warnWBGT)a.push(`WBGT (environmental heat stress) is estimated at ${e.wbgt.toFixed(1)}°C, above the ${CFG.warnWBGT}°C caution line used here`);
+ if(e.night!='GOOD')a.push(`Night temperature stays around ${e.tn}°C, so the body gets ${e.night=='POOR'?'little to no':'limited'} overnight recovery`);
+ if(h.no>.5)a.push(`${w.o}% of the ward works outdoors, adding physical exertion heat on top of the weather`);
+ if(h.ne>.5)a.push(`${w.e}% are older adults, who sweat less efficiently and have less cardiovascular reserve`);
+ if(h.nd>.5)a.push(`${w.d}% are people with disabilities or low mobility, who may be less able to move to a cooler place`);
+ if(h.nk>.5)a.push(`${w.k}% are young children, who heat up faster due to a higher skin-surface-to-body ratio`);
+ if(w.cool<.4)a.push('Low cooling access in this ward (fans/AC availability, estimated)');
+ return a.length?a:['Thermal stress is currently the main contributing input']}
+function remedies(e,w,h,r){const R=[];
+ if(e.rh>=60)R.push({icon: '<i data-lucide="droplets"></i>', text: 'Increase hydration messaging — humid heat blocks sweat cooling, so fluids matter more than usual'});
+ if(h.no>.5)R.push({icon: '<i data-lucide="hard-hat"></i>', text: 'Shift outdoor and manual work away from the early-afternoon peak heat window'});
+ if(h.ne>.5&&e.night!='GOOD')R.push({icon: '<i data-lucide="users"></i>', text: 'Check on older residents, especially those living alone, since warm nights give them no recovery'});
+ if(h.nd>.5)R.push({icon: '<i data-lucide="wheelchair"></i>', text: 'Ensure disabled/low-mobility residents have an easy way to reach a cool space or ask for help'});
+ if(h.nk>.5)R.push({icon: '<i data-lucide="school"></i>', text: 'Review outdoor school and play activity timing for children'});
+ if(w.cool<.4)R.push({icon: '<i data-lucide="snowflake"></i>', text: 'Consider opening or preparing a nearby cooling space'});
+ if(!R.length)R.push({icon: '<i data-lucide="info"></i>', text: 'No specific precaution triggered for this ward right now — general heat caution still applies.'});
+ return R}
+/* ============ COMPONENTS ============ */
+function tiles(mode){const l=loc();return `<div class="grid8">${l.wards.map((a,i)=>{const w=wardObj(i),h=engine2(w),e=engine1(l.weather),r=engine3(e,w,h);
+ const v=mode=='impact'?r.all:mode=='exposure'?h.expo:mode=='vuln'?h.human:w.surf,b=band(v);
+ return `<button class="tile ${i==ward?'sel':''}" style="background:var(${b[2]});color:${b[3]}" onclick="selWard(${i})" aria-label="${w.name}: ${b[1]}"><b>${w.name}</b><span>${b[1]}</span></button>`}).join('')}</div>
+ <div class="leg">${CFG.bands.map(b=>`<span><i style="background:var(${b[2]})"></i>${b[1]}</span>`).join('')}</div>`}
+function wardCard(d){const{e,w,h,r}=d,top=CATS.map(c=>[c,r[c]]).sort((a,b)=>b[1]-a[1]).slice(0,2);
+ return `<div class="card"><h3>${w.name}</h3><p style="margin:0">${chip(r.all)} <span class="mut">Heat-health risk</span></p>
+ <h4>Who is most exposed</h4><p style="margin:0; display:flex; gap:12px;">${top.map(t=>`<span style="display:flex; align-items:center; gap:6px;">${ICON[t[0]]} ${t[0]}</span>`).join('')}</p>
+ <h4>Why</h4><ul style="margin:4px 0">${why(e,w,h,r).slice(0,3).map(x=>`<li>${x}</li>`).join('')}</ul>
+ <h4>Suggested precautions</h4><ul style="margin:4px 0">${remedies(e,w,h,r).slice(0,2).map(x=>`<li>${x.text}</li>`).join('')}</ul>
+ <details><summary>See full reasoning and precautions</summary><ul>${why(e,w,h,r).map(x=>`<li>${x}</li>`).join('')}</ul>
+ <p class="mut">These are model inputs and rules behind the demonstration index, not proof of causation.</p>
+ <ul>${remedies(e,w,h,r).map(x=>`<li>${x.text}</li>`).join('')}</ul></details>
+ <p style="margin:12px 0 0"><button onclick="tab('Human Exposure')" style="display:flex; align-items:center; gap:6px;">View full ward profile <i data-lucide="arrow-right" class="lucide-sm"></i></button></p></div>`}
+/* ============ PAGES ============ */
+function overview(d){if(!d)return notReady();const{l,e,w,h,r}=d;
+ return `<h2><i data-lucide="layout-dashboard"></i> Current conditions · ${l.name}</h2><div class="g4">
+ <div class="card m"><small><i data-lucide="thermometer"></i> Temperature</small><b>${e.t}°C</b><small>Peak air temperature</small></div>
+ <div class="card m"><small><i data-lucide="droplets"></i> Humidity</small><b>${e.rh}%</b><small>Limits how well sweat cools the body</small></div>
+ <div class="card m"><small><i data-lucide="activity"></i> WBGT</small><b>${e.wbgt.toFixed(1)}°C</b><small>Heat stress from the environment (estimated)</small></div>
+ <div class="card m"><small><i data-lucide="thermometer-sun"></i> UTCI</small><b class="na">Not available in demo</b><small>Needs a validated library</small></div></div>
+ <p><button onclick="tab('Thermal Stress')" style="display:flex; align-items:center; gap:6px;">View thermal details <i data-lucide="arrow-right" class="lucide-sm"></i></button></p>
+ <h2><i data-lucide="map"></i> Where heat matters most</h2><p class="sub">Every ward feels almost the same weather. Risk differs by who is exposed and how well they can cope.</p>
+ <div class="two"><div>${tiles('impact')}</div>${wardCard(d)}</div>`}
+function notReady(){return `<div class="note"><i data-lucide="alert-circle" style="color:var(--acc2);"></i> <div>Full data for this location isn't built into the prototype yet. Switch back to <b>Puducherry</b> to see the working demo.</div></div>`}
+function thermal(d){if(!d)return notReady();const{l,e}=d,hb=hiCat(e.hi);
+ return `<h2><i data-lucide="thermometer-sun"></i> How hot does it really feel? · ${l.name}</h2><p class="sub">One weather reading for the whole union territory — every ward starts from the same weather, shown here rather than repeated on each ward page.</p>
+ <h4>What Engine 1 takes in (live inputs, demo)</h4>
+ <div class="g4">
+  <div class="card m"><small><i data-lucide="thermometer"></i> Temperature</small><b>${e.t}°C</b><small>Air temperature</small></div>
+  <div class="card m"><small><i data-lucide="droplet"></i> Humidity</small><b>${e.rh}%</b><small>How saturated the air is</small></div>
+  <div class="card m"><small><i data-lucide="wind"></i> Wind</small><b class="na">Not in demo</b><small>Would sharpen the estimate</small></div>
+  <div class="card m"><small><i data-lucide="gauge"></i> Pressure</small><b class="na">Not in demo</b><small>Small effect on heat stress</small></div>
+ </div>
+ <div class="flow">↓ Engine 1 combines temperature and humidity ↓</div>
+ <div class="card big"><div class="mut">It feels like</div><div class="num">${e.hi.toFixed(0)}°C</div>
+ <div>${chipband(hb)} <span class="mut">NWS Heat Index category</span></div>
+ <p class="mut" style="max-width:520px;margin:10px auto 0">Humidity is ${e.rh}%, so sweat can't evaporate well. That traps heat near the skin, so ${e.t}°C air feels roughly like ${e.hi.toFixed(0)}°C to the body.</p></div>
+ <details style="margin-top:14px"><summary>See the full technical breakdown (WBGT, UTCI, night recovery)</summary>
+ <div class="cols" style="margin-top:10px">
+ <div class="card"><h3>Heat Index</h3>${tbl([['Value',e.hi.toFixed(1)+'°C',e.hiOk?'NWS METHOD':'OUT OF RANGE']])}<p class="mut">The "feels like" number above.</p></div>
+ <div class="card"><h3>WBGT</h3>${tbl([['Value',e.wbgt.toFixed(1)+'°C','ESTIMATED']])}<p class="mut">Used in outdoor-work and sports heat-safety guidelines. Shade estimate only — ignores sun and wind.</p></div>
+ <div class="card"><h3>UTCI</h3>${tbl([['Value','Not available','NOT IMPLEMENTED']])}<p class="mut">Needs a validated library, so it's left out rather than guessed.</p></div></div>
+ <div class="card" style="margin-top:10px"><h3>Night recovery</h3>${tbl([['Night minimum',e.tn+'°C','DEMO'],['Night recovery',e.night,'DEMO threshold']])}<p class="mut">Poor night recovery means the body gets little relief before the next hot day.</p></div>
+ <p class="mut">Heat Index, WBGT and UTCI are separate metrics. They are never added together or derived from each other.</p></details>
+ <div class="note"><i data-lucide="info"></i> <div>This single reading applies UT-wide, not per ward — ward pages only add who is exposed and how well they can cope. A real deployment would refresh this from a live feed and recompute automatically; that needs a backend, which this published preview page cannot call directly.</div></div>`}
+function human(d){if(!d)return notReady();const{w,h}=d,cap=w.cool>=.6?['Good','--l']:w.cool>=.4?['Limited','--m']:['Low','--x'];
+ return `<h2><i data-lucide="users"></i> Who is exposed · ${w.name}</h2><p class="sub">A population-level view of this ward — never an individual's medical risk. Pick another ward below to compare.</p>
+ <div class="g4">
+  <div class="card m"><small><i data-lucide="hard-hat"></i> Outdoor workers</small><b>${w.o}%</b><small>~${h.workers.toLocaleString()} people work outside in the heat</small></div>
+  <div class="card m"><small><i data-lucide="user-plus"></i> Older adults 60+</small><b>${w.e}%</b><small>~${h.elderly.toLocaleString()} people</small></div>
+  <div class="card m"><small><i data-lucide="baby"></i> Children 0–6</small><b>${w.k}%</b><small>~${h.kids.toLocaleString()} people</small></div>
+  <div class="card m"><small><i data-lucide="wheelchair"></i> Disabled / low-mobility</small><b>${w.d}%</b><small>~${h.disabled.toLocaleString()} people</small></div>
+ </div>
+ <h4 style="margin-top:18px">Can this ward cope with heat?</h4>
+ <div class="card"><p style="margin:0">Cooling access: ${chipband(cap)} <span class="mut">(~${Math.round(w.cool*100)}% estimated fan/AC access)</span></p>
+ <p class="mut" style="margin:6px 0 0">Housing heat proxy ${w.house.toFixed(2)} — higher means homes trap more heat (tin roofs, poor ventilation). Ward population ~${w.pop.toLocaleString()} (2011 Census).</p></div>
+ <h3 style="margin-top:18px">Compare wards</h3>${tiles('vuln')}<p class="mut">Colours show overall vulnerability (age, disability and exposure mix, weighed against cooling and housing). Ward population is 2011 Census, the latest ward-level release; every other number here is a synthetic demo value, not a real record.</p>`}
+function health(d){if(!d)return notReady();const{e,w,h,r}=d;
+ return `<h2><i data-lucide="heart-pulse"></i> Health impact · ${w.name}</h2><div class="note"><i data-lucide="info"></i> <div>Population-level demonstration model. Not a medical diagnosis and not a validated individual mortality prediction. Validation pending.</div></div>
+ <div class="card big" style="margin-bottom:14px"><div class="mut">Overall heat-health risk for this ward</div><div style="margin-top:6px">${chip(r.all)}</div></div>
+ <h4>Risk by group, and the biology behind it</h4>
+ <div class="cols">${CATS.map(c=>`<div class="card catcard"><h3><span>${ICON[c]} ${c}</span> ${chip(r[c])}</h3><p class="mut" style="margin:0">${BIO[c]}</p></div>`).join('')}</div>
+ <div class="two" style="margin-top:14px"><div class="card"><h4>What's driving today's risk in ${w.name}</h4><ul>${why(e,w,h,r).map(x=>`<li>${x}</li>`).join('')}</ul><p class="mut">Model inputs and rules behind the index, not proof of causation.</p></div>
+ <div class="card"><h4>Precautions for consideration</h4><ul>${remedies(e,w,h,r).map(x=>`<li>${x.text}</li>`).join('')}</ul><h4 style="margin-top:14px">Data quality</h4>${tbl([['Weather','DEMO'],['Population','2011 Census + synthetic'],['Health model','DEMO · validation pending']])}</div></div>`}
+function gisPage(d){if(!d)return notReady();let g=window._gis||'impact';
+ return `<h2><i data-lucide="map"></i> GIS map · ${d.l.name}</h2><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${[['impact','Health impact'],['exposure','Human exposure'],['vuln','Vulnerability'],['surf','Surface heat']].map(([k,n])=>`<button aria-pressed="${g==k}" onclick="window._gis='${k}';render()">${n}</button>`).join('')}</div>
+ <p class="sub">Map representation of ward boundaries. Weather is one city-wide reading, so ward differences come from people and surface heat.</p>
+ <div class="two">
+   <div>
+     <div class="isometric-wrapper" style="background:var(--card); border:1px solid var(--line); border-radius:3px;">
+       ${SVG_MAP}
+     </div>
+     <div class="leg" style="justify-content: center; margin-top: 12px;">${CFG.bands.map(b=>`<span><i style="background:var(${b[2]})"></i>${b[1]}</span>`).join('')}</div>
+   </div>
+   <div>
+     ${wardCard(d)}
+     <div class="card" style="margin-top: 14px;">
+        <h4><i data-lucide="trending-up"></i> 7-Day Future Risk & Temp Prediction</h4>
+        <div style="position: relative; height: 200px; width: 100%;">
+          <canvas id="forecastChart"></canvas>
+        </div>
+     </div>
+     <div class="card" style="margin-top: 14px;">
+        <h4><i data-lucide="activity"></i> Health Effect Prediction (Continuous Heatwave)</h4>
+        <p class="mut" style="font-size: 13px;">Estimated mortality risk escalation over prolonged exposure</p>
+        <div style="position: relative; height: 180px; width: 100%;">
+          <canvas id="healthChart"></canvas>
+        </div>
+     </div>
+   </div>
+ </div>`}
+function actionsPage(d){if(!d)return notReady();const{e,w,h,r}=d;
+ return `<h2><i data-lucide="siren"></i> Actions & Alerts · ${w.name}</h2><div class="note"><i data-lucide="info"></i> <div>Recommended for authorities to consider. Execute alerts to notify respective stakeholders.</div></div>
+ <div class="two">
+   <div class="card">
+     <h3>Recommended Interventions</h3>
+     <div style="margin-top: 10px;">
+       ${remedies(e,w,h,r).map(x=>`
+         <div class="act">
+           <div style="background: var(--bg); padding: 8px; border-radius: 50%; color: var(--acc2); display: flex;">
+             ${x.icon}
+           </div>
+           <div>${x.text}</div>
+         </div>
+       `).join('')}
+     </div>
+   </div>
+   
+   <div class="card">
+     <h3>Alert & Notification Settings</h3>
+     <p class="mut">Configure and dispatch alerts to authorities and local population in ${w.name}.</p>
+     
+     <div style="margin-top: 16px; border-top: 1px solid var(--line); padding-top: 16px;">
+       <h4><i data-lucide="building"></i> Authorities</h4>
+       <label class="custom-checkbox">
+          <input type="checkbox" checked> Health Department
+       </label>
+       <label class="custom-checkbox">
+          <input type="checkbox" checked> Disaster Management Authority
+       </label>
+       <label class="custom-checkbox">
+          <input type="checkbox"> Local Mayor / Ward Councilor
+       </label>
+     </div>
+
+     <div style="margin-top: 16px; border-top: 1px solid var(--line); padding-top: 16px;">
+       <h4><i data-lucide="users"></i> Locality Citizens (${w.name})</h4>
+       <label class="custom-checkbox">
+          <input type="checkbox" checked> SMS Broadcast (Risk Level: ${band(r.all)[1]})
+       </label>
+       <label class="custom-checkbox">
+          <input type="checkbox" checked> Mobile App Push Notifications
+       </label>
+       <label class="custom-checkbox">
+          <input type="checkbox"> Public Loudspeaker / Siren System
+       </label>
+     </div>
+     
+     <div style="margin-top: 24px;">
+       <button style="width: 100%; background: var(--acc); color: white; border: none; padding: 12px; font-weight: bold; border-radius: 4px; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 16px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1" onclick="alert('Alerts dispatched successfully to selected channels!')">
+         <i data-lucide="bell-ring"></i> Dispatch Alerts
+       </button>
+     </div>
+   </div>
+ </div>`}
+function method(){return `<h2><i data-lucide="file-text"></i> Methodology</h2><div class="cols"><div class="card"><h3>Engines</h3><p class="mut"><b>1 Thermal:</b> Heat Index (NWS Rothfusz), WBGT shade estimate (Stull wet-bulb), night recovery. UTCI not implemented.<br><b>2 Human:</b> sensitivity, exposure, adaptive capacity on fixed reference ranges.<br><b>3 Health:</b> demo index built only from Engines 1 and 2.</p></div>
+ <div class="card"><h3>Data quality</h3>${tbl([['Weather','DEMO, single city reading'],['Ward population','2011 Census where used'],['Other ward indicators','SYNTHETIC / ASSUMPTION'],['Health model','DEMO, validation pending'],['Geometry','SCHEMATIC']])}</div>
+ <div class="card"><h3>Assumptions</h3><p class="mut">Hot WBGT ≥ ${CFG.warnWBGT}°C · poor night ≥ ${CFG.nightPoor}°C · weights ${CFG.wT}/${CFG.wN}. None are validated or official.</p></div></div>
+ <p class="mut">Not included: real ward boundaries, live weather feed, UTCI, wind/radiation, health outcome data.</p>`}
+const TABS=['Overview','Thermal Stress','Human Exposure','Health Impact','GIS Map','Actions','Methodology'];
+const PAGES={'Overview':overview,'Thermal Stress':thermal,'Human Exposure':human,'Health Impact':health,'GIS Map':gisPage,'Actions':actionsPage,'Methodology':()=>method()};
+function tab(t){tabName=t;render();scrollTo(0,0)}
+function selWard(i){ward=i;render()}
+function changeLoc(v){locId=v;ward=0;render()}
+function colorMap(gMode) {
+  const l=loc();
+  if(!l.ready) return;
+  l.wards.forEach((a, i) => {
+    const w=wardObj(i), h=engine2(w), e=engine1(l.weather), r=engine3(e,w,h);
+    const v=gMode=='impact'?r.all:gMode=='exposure'?h.expo:gMode=='vuln'?h.human:w.surf;
+    const b=band(v);
+    const path = document.getElementById('wp-'+i);
+    if(path) {
+      path.style.fill = 'var('+b[2]+')';
+      if(i === ward) {
+         path.classList.add('sel');
+      } else {
+         path.classList.remove('sel');
+      }
+    }
+  });
+}
+function renderCharts(d) {
+  activeCharts.forEach(c => c.destroy());
+  activeCharts = [];
+
+  const ctxF = document.getElementById('forecastChart');
+  const ctxH = document.getElementById('healthChart');
+  if(!ctxF || !ctxH) return;
+
+  const baseT = d.e.t;
+  const labels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+  const temps = [baseT, baseT+0.5, baseT+1.2, baseT+2.0, baseT+1.5, baseT-0.5, baseT-1.0];
+  const risk = temps.map(t => Math.max(0, (t - 33) * 15 + Math.random()*5)); 
+
+  activeCharts.push(new Chart(ctxF, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Max Temp (°C)', data: temps, borderColor: '#d94f2b', backgroundColor: '#d94f2b', tension: 0.3, yAxisID: 'y' },
+        { label: 'Heat Risk Index', data: risk, borderColor: '#f0b429', backgroundColor: '#f0b429', tension: 0.3, yAxisID: 'y1' }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, scales: { y: { type: 'linear', position: 'left' }, y1: { type: 'linear', position: 'right' } } }
+  }));
+
+  const daysExposed = [1, 2, 3, 4, 5, 6, 7];
+  const mortalityRisk = daysExposed.map(day => (d.r.all * 10 * Math.pow(1.15, day)).toFixed(1));
+
+  activeCharts.push(new Chart(ctxH, {
+    type: 'bar',
+    data: {
+      labels: daysExposed.map(x => x + ' days'),
+      datasets: [
+        { label: 'Estimated Mortality Indicator', data: mortalityRisk, backgroundColor: '#c1440e', borderRadius: 4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  }));
+}
+function render(){const d=data();
+ $('nav').innerHTML=TABS.map(t=>`<button ${t==tabName?'aria-current="page"':''} onclick="tab('${t}')">${t}</button>`).join('');
+ const sel=$('loc');sel.innerHTML=LOCATIONS.map(l=>`<option value="${l.id}" ${l.id==locId?'selected':''}>${l.name}</option>`).join('');
+ sel.onchange=e=>changeLoc(e.target.value);
+ $('view').innerHTML=(tabName=='Methodology'?method():PAGES[tabName](d));
+ $('foot').innerHTML=`Weather: DEMO · Population: 2011 Census + synthetic · Health model: DEMO (validation pending) · Geometry: SCHEMATIC. <button onclick="tab('Methodology')">Details</button><br>We show where heat matters, who is exposed, why, and what to consider doing.`;
+ 
+ if(tabName == 'GIS Map') {
+    setTimeout(() => {
+      colorMap(window._gis || 'impact');
+      renderCharts(d);
+    }, 0);
+ }
+ lucide.createIcons();
+}
+const $=id=>document.getElementById(id);render();
+</script></body></html>
